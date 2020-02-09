@@ -15,3 +15,7 @@ def IncidenceData(request):
 def CountyData(request):
     counties = serialize('geojson', County.objects.all())
     return HttpResponse(counties,content_type='json')
+
+#def HopkinsData(request):
+#    hopkins = serialize('geojson',Hopkin.objects.all())
+#    return HttpResponse(hopkins,content_type='json')

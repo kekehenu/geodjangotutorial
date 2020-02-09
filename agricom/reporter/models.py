@@ -31,3 +31,5 @@ class County(models.Model):
     hasc_1 = models.CharField(max_length=80)
     geom = models.MultiPolygonField(srid=4326)
 
+#class Hopkin(models.Model):
+

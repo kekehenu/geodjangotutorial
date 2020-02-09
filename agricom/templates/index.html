@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="{% static 'leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.css' %}">
         <script src="{% static 'leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js' %}"></script>
         <script src="{% static 'js/mousePosition.js' %}"></script>
+        <script src="{% static 'esri-leaflet/esri-leaflet.js' %}"></script>
     </head>
     <body>
         <div id="agrimap" style="height: 600px; width: 100%;"></div>
@@ -29,6 +30,7 @@
         maxZoom: 17,
         attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
     });
+
     osm.addTo(map);
 
     var incidences = L.geoJson(null, {
@@ -77,31 +79,71 @@ var counties = L.geoJson(null, {
 
 }).addTo(map);
 
+// Loading County layer
+var counties = L.geoJson(null, {
+    style: function(feature){
+        value = feature.properties.codes;
+        if(value <= 25){
+            return {color: "#ff0000"};
+        }else if(value > 25){
+            return {color: "#00ffff"};
+        } 
+    },
+
+}).addTo(map);
+
 var countyUrl = 'county';
 
 $.getJSON(countyUrl, function (data) {
   counties.addData(data);
 });
 
+//loading 霍普金斯大学的疫情地图
+
+/*var JohnHopkinsGeoson = L.geoJson("https://services1.arcgis.com/0MSEUqKaxRlEPj5g/ArcGIS/rest/services/Coronavirus_2019_nCoV_Cases/FeatureServer?f=pjson", {
+    style: function(feature){
+        value = feature.properties.codes;
+        if(value <= 25){
+            return {color: "#ff0000"};
+        }else if(value > 25){
+            return {color: "#00ffff"};
+        } 
+    },
+
+}).addTo(map);
+
+var HopkinsUrl = 'JohnHopkins';
+
+
+var geojsonFeature="services1.arcgis.com/0MSEUqKaxRlEPj5g/ArcGIS/rest/services/Coronavirus_2019_nCoV_Cases/FeatureServer?f=pjson";
+var HopkinsUrl = L.geoJSON().addTo(map);
+HopkinsUrl.addData(geojsonFeature);
+*/
+
+const portlandHeritageTrees = L.esri.featureLayer({
+      url: 'https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases/FeatureServer/1'
+    }).addTo(map);
+
+
 var baseLayers = {
   "Open Street Map": osm,
-  "Topo Map": OpenTopoMap
+  "Topo Map": OpenTopoMap,
+ 
+
 };
 
 var groupedOverlays = {
   "Point Data": {
-    "incidences": incidences,
-    
+  "incidences": incidences,
+  "全球疫情地图":portlandHeritageTrees    
   },
   "Other": {
-    "Administrative Boundaries": counties,
-    
+    "Administrative Boundaries": counties,   
   },
   
 };
 L.control.groupedLayers(baseLayers, groupedOverlays).addTo(map);
 L.control.mousePosition({position: "topright",}).addTo(map);
 L.control.scale().addTo(map);
-
 </script>
 </html>
